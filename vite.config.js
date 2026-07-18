@@ -9,11 +9,11 @@ export default defineConfig({
     // In production (Vercel), all API calls use the full VITE_API_URL env variable.
     proxy: {
       '/api': {
-        target: 'https://sr-industries-backend-4809.onrender.com',
+        target: 'https://sr-industries-backend-48o9.onrender.com',
         changeOrigin: true
       },
       '/uploads': {
-        target: 'https://sr-industries-backend-4809.onrender.com',
+        target: 'https://sr-industries-backend-48o9.onrender.com',
         changeOrigin: true
       }
     }
