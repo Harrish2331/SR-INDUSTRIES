@@ -23,6 +23,7 @@ export default function ContactForm() {
   })
   const [file, setFile] = useState(null)
   const [status, setStatus] = useState({ type: null, message: '' }) // { type: 'success' | 'error' | 'loading', message: '' }
+  const [showSlowWarning, setShowSlowWarning] = useState(false)
   const fileInputRef = useRef(null)
 
   const handleInputChange = (e) => {
@@ -63,6 +64,11 @@ export default function ContactForm() {
     }
 
     setStatus({ type: 'loading', message: 'Submitting engineering request...' })
+    setShowSlowWarning(false)
+
+    let warningTimer = setTimeout(() => {
+      setShowSlowWarning(true)
+    }, 6000) // Show waking-up warning after 6 seconds
 
     try {
       const data = new FormData()
@@ -90,7 +96,7 @@ export default function ContactForm() {
       if (response.ok) {
         setStatus({
           type: 'success',
-          message: 'Inquiry submitted successfully. Our engineering desk will revert within 24 hours. A verification email has been sent.',
+          message: 'Inquiry submitted successfully. Our engineering desk will revert within 24 hours. A verification email has been dispatched.',
         })
         // Reset form
         setFormData({ name: '', phone: '', email: '', service: '', message: '' })
@@ -108,6 +114,9 @@ export default function ContactForm() {
         type: 'error',
         message: 'Could not connect to the backend API. Please verify the server is active.',
       })
+    } finally {
+      clearTimeout(warningTimer)
+      setShowSlowWarning(false)
     }
   }
 
@@ -284,6 +293,16 @@ export default function ContactForm() {
           </div>
         </div>
       </div>
+
+      {showSlowWarning && (
+        <div className="flex items-center gap-3 p-4 bg-brand-gold/5 border border-brand-gold/20 rounded-lg text-brand-gold text-xs">
+          <AlertCircle className="w-5 h-5 shrink-0 text-brand-gold animate-pulse" />
+          <p className="leading-relaxed font-light">
+            Note: The backend server is currently waking up from sleep mode on our free hosting tier. 
+            This first inquiry might take up to 60 seconds. Please do not close or refresh this page.
+          </p>
+        </div>
+      )}
 
       {/* Submit Button */}
       <button
