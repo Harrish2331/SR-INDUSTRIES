@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { Send, Upload, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react'
+import API_URL from '../utils/api'
 
 const services = [
   'Heavy Structural Fabrication',
@@ -74,10 +75,15 @@ export default function ContactForm() {
         data.append('attachment', file)
       }
 
-      const response = await fetch('/api/contact', {
+      const requestUrl = `${API_URL}/api/contact`
+      console.log('[ContactForm] POST', requestUrl)
+
+      const response = await fetch(requestUrl, {
         method: 'POST',
         body: data,
       })
+
+      console.log('[ContactForm] Response status:', response.status)
 
       const result = await response.json()
 
@@ -90,12 +96,14 @@ export default function ContactForm() {
         setFormData({ name: '', phone: '', email: '', service: '', message: '' })
         setFile(null)
       } else {
+        console.error('[ContactForm] Error response body:', result)
         setStatus({
           type: 'error',
           message: result.errors ? result.errors.map(err => err.msg).join(', ') : result.message || 'Submission failed.',
         })
       }
     } catch (err) {
+      console.error('[ContactForm] Network error:', err.message)
       setStatus({
         type: 'error',
         message: 'Could not connect to the backend API. Please verify the server is active.',

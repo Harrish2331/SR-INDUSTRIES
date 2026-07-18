@@ -4,6 +4,7 @@ import { MapPin, Eye, Filter, ArrowUpRight, Layers } from 'lucide-react'
 import ProjectLightbox from '../components/ProjectLightbox'
 import axios from 'axios'
 import { normalizeImage } from '../utils/imageHelper'
+import API_URL from '../utils/api'
 
 // Swiper.js React Integrations
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -160,8 +161,10 @@ export default function Portfolio() {
   // Fetch projects on load
   useEffect(() => {
     const fetchProjects = async () => {
+      const requestUrl = `${API_URL}/api/projects`
+      console.log('[Portfolio] GET', requestUrl)
       try {
-        const response = await axios.get('/api/projects')
+        const response = await axios.get(requestUrl)
         const json = response.data
         if (json.success && json.data && json.data.length > 0) {
           const normalized = json.data.map((proj) => ({
@@ -173,6 +176,7 @@ export default function Portfolio() {
           setProjects(fallbackProjects)
         }
       } catch (err) {
+        console.error('[Portfolio] Failed to fetch projects:', err.message)
         setProjects(fallbackProjects)
       } finally {
         setLoading(false)

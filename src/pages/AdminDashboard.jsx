@@ -5,6 +5,7 @@ import {
   CheckCircle, ShieldAlert, Image as ImageIcon, X, Trash 
 } from 'lucide-react'
 import { normalizeImage } from '../utils/imageHelper'
+import API_URL from '../utils/api'
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -67,8 +68,10 @@ export default function AdminDashboard() {
   const fetchInquiries = async (authToken) => {
     setInquiriesLoading(true)
     const token = authToken || localStorage.getItem('sri_admin_token')
+    const requestUrl = `${API_URL}/api/admin/contacts`
+    console.log('[Admin] GET', requestUrl)
     try {
-      const res = await fetch('/api/admin/contacts', {
+      const res = await fetch(requestUrl, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -82,6 +85,7 @@ export default function AdminDashboard() {
         setInquiries(json.data)
       }
     } catch (err) {
+      console.error('[Admin] fetchInquiries error:', err.message)
       showFeedback('Failed to fetch contact inquiries', 'error')
     } finally {
       setInquiriesLoading(false)
@@ -92,8 +96,10 @@ export default function AdminDashboard() {
   const fetchProjects = async (authToken) => {
     setLoading(true)
     const token = authToken || localStorage.getItem('sri_admin_token')
+    const requestUrl = `${API_URL}/api/projects`
+    console.log('[Admin] GET', requestUrl)
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(requestUrl, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -111,6 +117,7 @@ export default function AdminDashboard() {
         setProjects(normalized)
       }
     } catch (err) {
+      console.error('[Admin] fetchProjects error:', err.message)
       showFeedback('Failed to connect to backend service', 'error')
     } finally {
       setLoading(false)
@@ -121,12 +128,15 @@ export default function AdminDashboard() {
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoginError('')
+    const requestUrl = `${API_URL}/api/admin/login`
+    console.log('[Admin] POST', requestUrl)
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch(requestUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'admin', password })
       })
+      console.log('[Admin] Login response status:', res.status)
       const data = await res.json()
       if (data.success && data.token) {
         localStorage.setItem('sri_admin_token', data.token)
@@ -137,6 +147,7 @@ export default function AdminDashboard() {
         setLoginError(data.message || 'Invalid administrator password')
       }
     } catch (err) {
+      console.error('[Admin] Login error:', err.message)
       setLoginError('Server error authenticating admin')
     }
   }
@@ -156,8 +167,10 @@ export default function AdminDashboard() {
       return
     }
     const token = localStorage.getItem('sri_admin_token')
+    const requestUrl = `${API_URL}/api/admin/contacts/${id}`
+    console.log('[Admin] DELETE', requestUrl)
     try {
-      const res = await fetch(`/api/admin/contacts/${id}`, {
+      const res = await fetch(requestUrl, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -293,8 +306,9 @@ export default function AdminDashboard() {
     })
 
     const isEdit = !!editingProject
-    const url = isEdit ? `/api/projects/${editingProject._id}` : '/api/projects'
+    const url = isEdit ? `${API_URL}/api/projects/${editingProject._id}` : `${API_URL}/api/projects`
     const method = isEdit ? 'PUT' : 'POST'
+    console.log('[Admin]', method, url)
 
     try {
       const res = await fetch(url, {
@@ -314,6 +328,7 @@ export default function AdminDashboard() {
         showFeedback(json.message || 'Error saving project details', 'error')
       }
     } catch (err) {
+      console.error('[Admin] Save project error:', err.message)
       showFeedback('Server connection error during save', 'error')
     }
   }
@@ -325,8 +340,10 @@ export default function AdminDashboard() {
     }
 
     const token = localStorage.getItem('sri_admin_token')
+    const requestUrl = `${API_URL}/api/projects/${id}`
+    console.log('[Admin] DELETE', requestUrl)
     try {
-      const res = await fetch(`/api/projects/${id}`, {
+      const res = await fetch(requestUrl, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -340,6 +357,7 @@ export default function AdminDashboard() {
         showFeedback(json.message || 'Error deleting project', 'error')
       }
     } catch (err) {
+      console.error('[Admin] Delete project error:', err.message)
       showFeedback('Server connection error during deletion', 'error')
     }
   }
